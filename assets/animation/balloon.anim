@@ -1,0 +1,54 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "balloon",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0.5,
+  "sample": 8,
+  "speed": 1,
+  "wrapMode": 2,
+  "curveData": {
+    "comps": {
+      "cc.Sprite": {
+        "spriteFrame": [
+          {
+            "frame": 0,
+            "value": {
+              "__uuid__": "0c06d78a-40fa-4faa-b9ed-310fb136aa1a"
+            }
+          },
+          {
+            "frame": 0.125,
+            "value": {
+              "__uuid__": "eb6680e7-b0a9-4ba4-a0f8-fa723ff98113"
+            }
+          },
+          {
+            "frame": 0.25,
+            "value": {
+              "__uuid__": "af1f63da-1f3b-48b8-bac0-12e3783cae2a"
+            }
+          },
+          {
+            "frame": 0.375,
+            "value": {
+              "__uuid__": "fda3f64b-4858-4ad8-8201-fc02a2f77e75"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "events": [
+    {
+      "frame": 0,
+      "func": "",
+      "params": []
+    },
+    {
+      "frame": 0,
+      "func": "",
+      "params": []
+    }
+  ]
+}
