@@ -4,25 +4,8 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class CreatingBalloons extends cc.Component {
 
-    @property(cc.Label)
-    labelCount: cc.Label = null;
-
-    @property(cc.Label)
-    labelLife: cc.Label = null;
-
     @property(cc.Prefab)
     target: cc.Prefab = null;
-
-    _life: number;
-    _count: number;
-    _speed: number;
-    _current: cc.Node = null;
-
-    @property()
-    maxLife: number = 5;
-
-    @property()
-    countForLevelUp: number = 5;
 
     @property()
     deltaSpeed: number = 50;
@@ -33,20 +16,13 @@ export default class CreatingBalloons extends cc.Component {
     @property()
     maxSpeed: number = 500;
 
-    onLoad () 
-    {
-        this._speed = this.minSpeed;
-        this._life = this.maxLife;
-        this._count = 0;
-        this.labelCount.string = "Count: " + this._count;
-        this.labelLife.string = "Life: " + this._life;
-    }
+    _speed: number = 0;
+    _current: cc.Node = null;
 
     createBalloon(data)
     {
         this._current = cc.instantiate(this.target);
         this.node.addChild(this._current);
-        this.node.childrenCount
         this._current.on('ball_gone', this.onBallGone, this);
         this._current.on('ball_hit', this.onBallHit, this);
 
@@ -54,9 +30,8 @@ export default class CreatingBalloons extends cc.Component {
             data = this.generateRandomData();
         }
         const balloon = this._current.getComponent('Balloon');
-        balloon.init(data.speed, data.x, data.y);
+        balloon.Initialize(data.speed, data.x, data.y);
     }
-
 
     generateRandomData()
     {
@@ -77,34 +52,76 @@ export default class CreatingBalloons extends cc.Component {
 
     onBallGone ()
     {
-        this._life -= 1;
-        if (this._life < 0)
-        {
-            cc.log("End game"); // TO DO
-            return;
-        }
-        this.labelLife.string = "Life: " + this._life;
+        this.node.emit("life_decrease");
     }
 
     onBallHit ()
     {
-        this._count += 1;
-        this.labelCount.string = "Count: " + this._count;
-        if (this._count % this.countForLevelUp == 0)
-        {
-           this._speed += this.deltaSpeed;
-           if (this._speed > this.maxSpeed)
-           {
-               this._speed = this.maxSpeed;
-           }
+        this.node.emit("score_increase");
+    }
 
-           let balls = this.node.children;
-           for (let obj of balls) 
-           {
+    ResetSpeed()
+    {
+        this.SetSpeedBalls(this.minSpeed);
+    }
+
+    SetSpeedBalls (speed: number)
+    {
+        this._speed = speed;
+
+        if (this.node.childrenCount > 0)
+        {
+            let balls = this.node.children;
+            for (let obj of balls) 
+            {
                 const balloon = obj.getComponent('Balloon');
                 balloon.SetSpeed(this._speed);
-           }
+            }
+        }
+    }
 
+    SpeedUp ()
+    {
+        this._speed += this.deltaSpeed;
+        if (this._speed > this.maxSpeed)
+        {
+            this._speed = this.maxSpeed;
+        }
+
+        if (this.node.childrenCount > 0)
+        {
+            let balls = this.node.children;
+            for (let obj of balls) 
+            {
+                const balloon = obj.getComponent('Balloon');
+                balloon.SetSpeed(this._speed);
+            }
+        }
+    }
+
+    onEnable ()
+    {
+        if (this.node.childrenCount > 0)
+        {
+            let balls = this.node.children;
+            for (let obj of balls) 
+            {
+                const balloon = obj.getComponent('Balloon');
+                balloon.enabled = true;
+            }
+        }
+    }
+
+    onDisable ()
+    {
+        if (this.node.childrenCount > 0)
+        {
+            let balls = this.node.children;
+            for (let obj of balls) 
+            {
+                const balloon = obj.getComponent('Balloon');
+                balloon.enabled = false;
+            }
         }
     }
 

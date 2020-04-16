@@ -4,29 +4,41 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class Balloon extends cc.Component {
 
-    _clicked: boolean = false;
-    _collider: cc.Component;
+    @property(cc.AudioClip)
+    hitAudio: cc.AudioClip = null;
+
+    @property(cc.AudioClip)
+    goneAudio: cc.AudioClip = null;
+
+    _timeOut: number = 0.2;
+
     _top: number;
-    _speed: number = 100.0;
-    
+    _collider: cc.Component;
+    _body: cc.Component;
 
     onLoad () 
     {
         this._top = (cc.winSize.height / 2 + this.node.height / 2);
         this._collider = this.node.getComponent(cc.BoxCollider);
-        cc.director.getCollisionManager().enabled = true;
+        this._body = this.node.getComponent(cc.RigidBody);
+
+        this.enabled = true;
         this.node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
     }
 
     onTouchStart(e: cc.Touch)
     {
-        if (!this._clicked)
+        if (this.enabled)
         {
             let touchLoc = e.getLocation();
             if (cc.Intersection.pointInPolygon(touchLoc, this._collider.world.points)) {
-                this._clicked = true;
+                this.enabled = false;
+                this.node.runAction(cc.fadeOut(this._timeOut));
+                this.schedule(function() 
+                {
+                    this.BallHit();
+                }, this._timeOut);
 
-                this.node.runAction(cc.fadeOut(0.2));
             }
         }
     }
@@ -36,8 +48,7 @@ export default class Balloon extends cc.Component {
         this.node.off(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
     }
 
-
-    init(speed: number, x: number, y: number)
+    Initialize(speed: number, x: number, y: number)
     {
         this.node.setPosition(cc.v2(x, y));
         this.SetSpeed(speed);
@@ -45,27 +56,29 @@ export default class Balloon extends cc.Component {
 
     SetSpeed(speed: number)
     {
-        this._speed = speed;
+        this._body.linearVelocity = cc.v2(0, speed);
+    }
+
+    BallHit ()
+    {
+        cc.audioEngine.play(this.hitAudio, false);
+        this.node.emit("ball_hit");
+        this.node.destroy();
+    }
+
+    CheckBallGone ()
+    {
+        if (this.enabled && (this.node.y > this._top))
+        {
+            this.enabled = false;
+            cc.audioEngine.play(this.goneAudio, false);
+            this.node.emit("ball_gone");
+            this.node.destroy();
+        }
     }
 
     update (dt) 
     {
-        if (!this._clicked)
-        {
-            this.node.y += this._speed * dt;
-            if (this.node.y > this._top)
-            {
-                this.node.emit("ball_gone");
-                this.node.destroy();
-            }
-        }
-        else
-        {
-            if (this.node.opacity <= 0.0)
-            {
-                this.node.emit("ball_hit")
-                this.node.destroy();
-            }
-        }
+        this.CheckBallGone();
     }
 }
