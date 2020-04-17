@@ -11,10 +11,10 @@ export default class CreatingBalloons extends cc.Component {
     deltaSpeed: number = 50;
 
     @property()
-    minSpeed: number = 100;
+    minSpeed: number = 200;
 
     @property()
-    maxSpeed: number = 500;
+    maxSpeed: number = 700;
 
     _speed: number = 0;
     _current: cc.Node = null;

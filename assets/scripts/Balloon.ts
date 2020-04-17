@@ -10,8 +10,6 @@ export default class Balloon extends cc.Component {
     @property(cc.AudioClip)
     goneAudio: cc.AudioClip = null;
 
-    _timeOut: number = 0.2;
-
     _top: number;
     _collider: cc.Component;
     _body: cc.Component;
@@ -33,11 +31,11 @@ export default class Balloon extends cc.Component {
             let touchLoc = e.getLocation();
             if (cc.Intersection.pointInPolygon(touchLoc, this._collider.world.points)) {
                 this.enabled = false;
-                this.node.runAction(cc.fadeOut(this._timeOut));
-                this.schedule(function() 
-                {
+                this.node.runAction(cc.fadeOut(0.2));
+                cc.audioEngine.play(this.hitAudio, false);
+                setTimeout(function () {
                     this.BallHit();
-                }, this._timeOut);
+                }.bind(this), 200);
 
             }
         }
@@ -61,7 +59,6 @@ export default class Balloon extends cc.Component {
 
     BallHit ()
     {
-        cc.audioEngine.play(this.hitAudio, false);
         this.node.emit("ball_hit");
         this.node.destroy();
     }
